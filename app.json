@@ -8,22 +8,52 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFBE98"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.kidsgram",
+      "infoPlist": {
+        "NSCameraUsageDescription": "아이의 소중한 순간을 사진으로 기록하기 위해 카메라 접근이 필요합니다.",
+        "NSMicrophoneUsageDescription": "아이의 목소리를 녹음하기 위해 마이크 접근이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "갤러리에서 사진을 선택하기 위해 사진 라이브러리 접근이 필요합니다."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFBE98"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.yourcompany.kidsgram",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "scheme": "kidsgram",
+    "plugins": [
+      "expo-image-picker",
+      "expo-av"
+    ],
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3dcbced4-0912-4126-8b0d-ccc180501994"
+      }
     }
   }
 }
