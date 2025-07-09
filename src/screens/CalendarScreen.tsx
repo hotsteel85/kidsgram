@@ -5,7 +5,7 @@ import {
   StyleSheet, 
   SafeAreaView, 
   TouchableOpacity, 
-  Alert 
+  Alert,
 } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,7 @@ import { CalendarScreenNavigationProp } from '../types/navigation';
 import { Memory } from '../types';
 import { Loading } from '../components/UI/Loading';
 import { ErrorMessage } from '../components/UI/ErrorMessage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CalendarScreenProps {
   navigation: CalendarScreenNavigationProp;
@@ -36,6 +37,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) =>
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   const loadMemories = async () => {
     if (!user) return;
@@ -164,7 +166,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) =>
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity 
           style={styles.headerButton} 
           onPress={() => navigation.goBack()}

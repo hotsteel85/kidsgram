@@ -6,7 +6,9 @@ import {
   SafeAreaView, 
   TouchableOpacity, 
   ScrollView,
-  Alert 
+  Alert,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
@@ -215,40 +217,45 @@ export const MemoryScreen: React.FC<MemoryScreenProps> = ({ navigation, route })
           </Text>
         </TouchableOpacity>
       </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <DateSelector 
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
-
-        <View style={styles.sections}>
-          <PhotoUpload 
-            photoUri={photoUri}
-            onPhotoChange={setPhotoUri}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+      >
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <DateSelector 
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
           />
 
-          <AudioRecorder 
-            audioUri={audioUri}
-            onAudioChange={setAudioUri}
-          />
+          <View style={styles.sections}>
+            <PhotoUpload 
+              photoUri={photoUri}
+              onPhotoChange={setPhotoUri}
+            />
 
-          <TextInput 
-            value={note}
-            onChangeText={setNote}
-            placeholder="오늘의 메모를 작성해보세요..."
-          />
-        </View>
+            <AudioRecorder 
+              audioUri={audioUri}
+              onAudioChange={setAudioUri}
+            />
 
-        {isEditing && (
-          <View style={styles.editInfo}>
-            <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
-            <Text style={styles.editInfoText}>
-              기존 기록을 수정하고 있습니다.
-            </Text>
+            <TextInput 
+              value={note}
+              onChangeText={setNote}
+              placeholder="오늘의 메모를 작성해보세요..."
+            />
           </View>
-        )}
-      </ScrollView>
+
+          {isEditing && (
+            <View style={styles.editInfo}>
+              <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
+              <Text style={styles.editInfoText}>
+                기존 기록을 수정하고 있습니다.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

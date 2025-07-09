@@ -19,6 +19,8 @@ import { MemoryDetailScreenNavigationProp, MemoryDetailScreenRouteProp } from '.
 import { Loading } from '../components/UI/Loading';
 import { ErrorMessage } from '../components/UI/ErrorMessage';
 import { getDateDisplay } from '../utils/dateUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Memory } from '../types';
 
 interface MemoryDetailScreenProps {
   navigation: MemoryDetailScreenNavigationProp;
@@ -38,6 +40,7 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const memoryId = route.params.memoryId;
 
@@ -175,7 +178,7 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity 
           style={styles.headerButton} 
           onPress={() => navigation.goBack()}

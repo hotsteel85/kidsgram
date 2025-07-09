@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../../styles/colors';
 import { formatDate, getDateDisplay, isToday } from '../../utils/dateUtils';
+import { Calendar } from 'react-native-calendars';
 
 interface DateSelectorProps {
   selectedDate: Date;
@@ -83,8 +84,23 @@ export const DateSelector: React.FC<DateSelectorProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>날짜 선택</Text>
-            
-            {/* 여기에 실제 달력 컴포넌트가 들어갈 예정 */}
+            <Calendar
+              // @ts-ignore
+              onDayPress={day => {
+                handleCustomDateSelect(new Date(day.dateString));
+              }}
+              markedDates={{
+                [formatDate(selectedDate)]: { selected: true, selectedColor: colors.primary }
+              }}
+              current={formatDate(selectedDate)}
+              theme={{
+                selectedDayBackgroundColor: colors.primary,
+                todayTextColor: colors.primary,
+                arrowColor: colors.primary,
+                textSectionTitleColor: colors.textPrimary,
+                monthTextColor: colors.textPrimary,
+              }}
+            />
             <View style={styles.modalActions}>
               <TouchableOpacity 
                 style={styles.modalButton} 

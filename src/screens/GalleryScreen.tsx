@@ -7,7 +7,9 @@ import {
   TouchableOpacity, 
   FlatList,
   RefreshControl,
-  Alert 
+  Alert,
+  Dimensions,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
@@ -18,6 +20,7 @@ import { Memory } from '../types';
 import { MemoryCard } from '../components/Gallery/MemoryCard';
 import { Loading } from '../components/UI/Loading';
 import { ErrorMessage } from '../components/UI/ErrorMessage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface GalleryScreenProps {
   navigation: GalleryScreenNavigationProp;
@@ -33,6 +36,13 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
     deleteMemoryData 
   } = useMemory();
   const [refreshing, setRefreshing] = useState(false);
+  const insets = useSafeAreaInsets();
+  const screenWidth = Dimensions.get('window').width;
+  const numColumns = 3;
+  const imageSize = Math.floor(screenWidth / numColumns);
+
+  // 사진이 있는 기록만 필터링
+  const photoMemories = memories.filter(m => m.photoUrl);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -72,20 +82,28 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
     navigation.navigate('Memory', {});
   };
 
-  const renderMemoryCard = ({ item }: { item: Memory }) => (
-    <MemoryCard 
-      memory={item}
+  // 인스타그램 스타일 그리드 렌더러
+  const renderPhotoItem = ({ item }: { item: Memory }) => (
+    <TouchableOpacity
       onPress={() => handleMemoryPress(item)}
-      onLongPress={() => handleMemoryDelete(item)}
-    />
+      activeOpacity={0.8}
+      style={{ width: imageSize, height: imageSize }}
+    >
+      <Image
+        source={{ uri: item.photoUrl! }}
+        style={{ width: imageSize, height: imageSize }}
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
   );
 
+  // 안내 메시지
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="images-outline" size={64} color={colors.textLight} />
-      <Text style={styles.emptyTitle}>아직 기록이 없어요</Text>
+      <Text style={styles.emptyTitle}>아직 사진 기록이 없어요</Text>
       <Text style={styles.emptySubtitle}>
-        첫 번째 기록을 작성해보세요!
+        사진이 포함된 기록을 남겨보세요!
       </Text>
       <TouchableOpacity style={styles.addButton} onPress={handleAddMemory}>
         <Ionicons name="add" size={20} color={colors.white} />
@@ -109,7 +127,7 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity 
           style={styles.headerButton} 
           onPress={() => navigation.goBack()}
@@ -124,22 +142,15 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
           <Ionicons name="add" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
-
       <FlatList
-        data={memories}
-        renderItem={renderMemoryCard}
+        data={photoMemories}
+        renderItem={renderPhotoItem}
         keyExtractor={(item) => item.id || item.date}
-        contentContainerStyle={styles.listContainer}
+        numColumns={numColumns}
+        key={numColumns}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
         ListEmptyComponent={renderEmptyState}
+        contentContainerStyle={photoMemories.length === 0 ? { flex: 1 } : undefined}
       />
     </SafeAreaView>
   );

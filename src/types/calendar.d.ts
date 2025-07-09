@@ -8,6 +8,7 @@ declare module 'react-native-calendars' {
   }
 
   export interface CalendarProps {
+    current?: string;
     onDayPress?: (day: DateData) => void;
     markedDates?: {
       [date: string]: {

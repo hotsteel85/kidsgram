@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { colors, shadows } from '../styles/colors';
 import { HomeScreenNavigationProp } from '../types/navigation';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HomeScreenProps {
   navigation: HomeScreenNavigationProp;
@@ -11,6 +12,7 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, logout } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleLogout = async () => {
     try {
@@ -38,7 +40,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.userInfo}>
           <Text style={styles.greeting}>안녕하세요!</Text>
           <Text style={styles.userName}>

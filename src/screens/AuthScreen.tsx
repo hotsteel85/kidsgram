@@ -24,23 +24,21 @@ export const AuthScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
+      <View style={styles.splitContainer}>
+        <View style={styles.topSection}>
           <Text style={styles.title}>Kidsgram</Text>
           <Text style={styles.subtitle}>
             아이의 소중한 순간들을 기록하세요
           </Text>
         </View>
-
-        <View style={styles.authSection}>
+        <View style={styles.middleSection}>
           <GoogleSignIn 
             onPress={login}
             loading={loading}
             disabled={loading}
           />
         </View>
-
-        <View style={styles.footer}>
+        <View style={styles.bottomSection}>
           <Text style={styles.footerText}>
             로그인하여 개인화된 경험을 시작하세요
           </Text>
@@ -55,15 +53,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  splitContainer: {
     flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
   },
-  header: {
+  topSection: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 60,
+  },
+  middleSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 32,
   },
   title: {
     fontSize: 48,
@@ -76,13 +83,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 26,
-  },
-  authSection: {
-    alignItems: 'center',
-  },
-  footer: {
-    alignItems: 'center',
-    marginBottom: 40,
   },
   footerText: {
     fontSize: 14,

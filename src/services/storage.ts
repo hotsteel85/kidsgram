@@ -30,10 +30,12 @@ export const uploadPhoto = async (
   date: string
 ): Promise<string> => {
   try {
+    console.log('uploadPhoto - uri:', uri);
     const response = await fetch(uri);
-    const blob = await response.blob();
+    const arrayBuffer = await response.arrayBuffer();
+    console.log('uploadPhoto - arrayBuffer byteLength:', arrayBuffer.byteLength);
     const fileName = `photos/${userId}/${date}_${Date.now()}.jpg`;
-    const downloadURL = await uploadFile(blob, fileName, 'image/jpeg');
+    const downloadURL = await uploadFile(arrayBuffer, fileName, 'image/jpeg');
     return downloadURL;
   } catch (error) {
     console.error('사진 업로드 오류:', error);
