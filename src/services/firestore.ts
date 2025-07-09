@@ -5,12 +5,16 @@ import { FIREBASE_COLLECTIONS } from '../utils/constants';
 // 메모리 저장
 export const saveMemory = async (memory: Omit<Memory, 'id' | 'createdAt'>): Promise<string> => {
   try {
-    const docRef = await firestore()
-      .collection(FIREBASE_COLLECTIONS.MEMORIES)
-      .add({
+    // undefined 필드 제거
+    const filteredMemory = Object.fromEntries(
+      Object.entries({
         ...memory,
         createdAt: firestore.FieldValue.serverTimestamp(),
-      });
+      }).filter(([_, v]) => v !== undefined)
+    );
+    const docRef = await firestore()
+      .collection(FIREBASE_COLLECTIONS.MEMORIES)
+      .add(filteredMemory);
     return docRef.id;
   } catch (error) {
     console.error('메모리 저장 오류:', error);
@@ -21,13 +25,17 @@ export const saveMemory = async (memory: Omit<Memory, 'id' | 'createdAt'>): Prom
 // 메모리 업데이트
 export const updateMemory = async (id: string, updates: Partial<Memory>): Promise<void> => {
   try {
+    // undefined 필드 제거
+    const filteredUpdates = Object.fromEntries(
+      Object.entries({
+        ...updates,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      }).filter(([_, v]) => v !== undefined)
+    );
     await firestore()
       .collection(FIREBASE_COLLECTIONS.MEMORIES)
       .doc(id)
-      .update({
-        ...updates,
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-      });
+      .update(filteredUpdates);
   } catch (error) {
     console.error('메모리 업데이트 오류:', error);
     throw new Error('메모리 업데이트에 실패했습니다.');

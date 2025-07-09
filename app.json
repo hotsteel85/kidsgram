@@ -45,7 +45,9 @@
     "scheme": "kidsgram",
     "plugins": [
       "expo-image-picker",
-      "expo-av"
+      "expo-av",
+      "@react-native-firebase/app",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "tsconfigPaths": true

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "939218251186-0rm00ksfihcr6eq71i8s72k3acgmua4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourcompany.kidsgram",
+            "certificate_hash": "e06bbf81142df50206e0f5dfe89e7251e4330d09"
+          }
+        },
+        {
           "client_id": "939218251186-106uf1gikfdvaee2q00hu4jrde6o9o14.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

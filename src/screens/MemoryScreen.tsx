@@ -18,6 +18,8 @@ import { PhotoUpload } from '../components/Memory/PhotoUpload';
 import { AudioRecorder } from '../components/Memory/AudioRecorder';
 import { TextInput } from '../components/Memory/TextInput';
 import { formatDate } from '../utils/dateUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Memory } from '../types';
 
 interface MemoryScreenProps {
   navigation: MemoryScreenNavigationProp;
@@ -35,6 +37,8 @@ export const MemoryScreen: React.FC<MemoryScreenProps> = ({ navigation, route })
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [originalMemory, setOriginalMemory] = useState<Memory | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   // 라우트에서 전달받은 날짜나 메모리 ID가 있으면 사용
   useEffect(() => {
@@ -188,7 +192,7 @@ export const MemoryScreen: React.FC<MemoryScreenProps> = ({ navigation, route })
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity style={styles.headerButton} onPress={handleCancel}>
           <Ionicons name="close" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
