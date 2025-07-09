@@ -3,7 +3,7 @@ export const STORAGE_KEYS = {
   USER_DATA: 'user_data',
 };
 
-export const AUDIO_RECORDING_LIMIT = 30; // 30초
+export const AUDIO_RECORDING_LIMIT = 15; // 15초
 export const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const FIREBASE_COLLECTIONS = {

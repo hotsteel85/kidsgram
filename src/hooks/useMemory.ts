@@ -30,6 +30,7 @@ export const useMemory = () => {
       setMemories(userMemories);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '메모리를 불러올 수 없습니다.';
+      console.error('메모리 로드 오류:', err);
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -57,30 +58,73 @@ export const useMemory = () => {
     }
   }, []);
 
-  // 메모리 저장 (새로 생성)
+  // 메모리 저장 (새로 생성 - 기존 기록 삭제 후)
   const saveMemoryData = useCallback(async (
     date: Date,
     photoUri?: string,
     audioUri?: string,
-    note?: string
+    note?: string,
+    emotion?: string
   ): Promise<string> => {
     if (!user) {
       throw new Error('로그인이 필요합니다.');
     }
 
     const dateString = formatDate(date);
+    console.log('saveMemoryData 시작:', { dateString, date, userId: user.uid });
+    
+    // 같은 날짜의 기존 기록 확인 및 삭제
+    const existingMemory = await getMemoryByDate(dateString);
+    console.log('기존 기록 확인 결과:', existingMemory ? `ID: ${existingMemory.id}` : '없음');
+    
+    if (existingMemory) {
+      console.log('기존 기록 삭제 시작');
+      // 기존 파일들 삭제
+      if (existingMemory.photoUrl) {
+        try {
+          await deleteFile(getFilePathFromURL(existingMemory.photoUrl));
+          console.log('기존 사진 삭제 완료');
+        } catch (error) {
+          console.error('기존 사진 삭제 오류:', error);
+        }
+      }
+
+      if (existingMemory.audioUrl) {
+        try {
+          await deleteFile(getFilePathFromURL(existingMemory.audioUrl));
+          console.log('기존 오디오 삭제 완료');
+        } catch (error) {
+          console.error('기존 오디오 삭제 오류:', error);
+        }
+      }
+
+      // Firestore에서 삭제
+      await deleteMemory(existingMemory.id!);
+      console.log('Firestore에서 기존 기록 삭제 완료');
+      
+      // 로컬 상태에서 제거
+      setMemories(prev => prev.filter(memory => memory.id !== existingMemory.id));
+    }
+    
+    // 새로운 기록 생성
     let photoUrl: string | undefined;
     let audioUrl: string | undefined;
 
     try {
+      console.log('새 기록 생성 시작');
+      
       // 사진 업로드
       if (photoUri) {
+        console.log('사진 업로드 시작');
         photoUrl = await uploadPhoto(photoUri, user.uid, dateString);
+        console.log('사진 업로드 완료:', photoUrl);
       }
 
       // 오디오 업로드
       if (audioUri) {
+        console.log('오디오 업로드 시작');
         audioUrl = await uploadAudio(audioUri, user.uid, dateString);
+        console.log('오디오 업로드 완료:', audioUrl);
       }
 
       // Firestore에 저장
@@ -89,10 +133,13 @@ export const useMemory = () => {
         photoUrl,
         audioUrl,
         note: note?.trim(),
+        emotion: emotion?.trim(),
         userId: user.uid,
       };
-
+      
+      console.log('Firestore 저장 데이터:', memoryData);
       const memoryId = await saveMemory(memoryData);
+      console.log('Firestore 저장 완료, ID:', memoryId);
       
       // 로컬 상태 업데이트
       const newMemory: Memory = {
@@ -102,9 +149,11 @@ export const useMemory = () => {
       };
       
       setMemories(prev => [newMemory, ...prev]);
+      console.log('로컬 상태 업데이트 완료');
       
       return memoryId;
     } catch (error) {
+      console.error('저장 중 오류 발생:', error);
       // 업로드된 파일들 정리
       if (photoUrl) {
         try {
@@ -124,7 +173,7 @@ export const useMemory = () => {
       
       throw error;
     }
-  }, [user]);
+  }, [user, getMemoryByDate]);
 
   // 메모리 업데이트 (기존 수정)
   const updateMemoryData = useCallback(async (

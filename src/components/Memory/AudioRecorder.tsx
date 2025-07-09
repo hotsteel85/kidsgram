@@ -78,11 +78,16 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
       setIsRecording(false);
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
+      console.log('녹음 완료, URI:', uri);
       setRecording(null);
       setRecordingTime(0);
       
       if (uri) {
+        console.log('오디오 URI 설정:', uri);
         onAudioChange(uri);
+      } else {
+        console.error('녹음 URI가 null입니다');
+        Alert.alert('오류', '녹음 파일을 생성할 수 없습니다.');
       }
     } catch (error) {
       console.error('녹음 중지 오류:', error);
@@ -159,7 +164,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </TouchableOpacity>
           <View style={styles.audioInfo}>
             <Text style={styles.audioText}>음성 녹음</Text>
-            <Text style={styles.audioTime}>00:30</Text>
+            <Text style={styles.audioTime}>00:15</Text>
           </View>
           <View style={styles.audioActions}>
             <TouchableOpacity style={styles.actionButton} onPress={startRecording}>
@@ -176,18 +181,15 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             <View style={styles.recordingActive}>
               <View style={styles.recordingIndicator} />
               <Text style={styles.recordingText}>
-                녹음 중... {formatTime(recordingTime)}
+                {formatTime(recordingTime)}
               </Text>
               <TouchableOpacity style={styles.stopButton} onPress={stopRecording}>
-                <Ionicons name="stop" size={24} color={colors.white} />
+                <Ionicons name="stop" size={16} color={colors.white} />
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
-              <Ionicons name="mic" size={32} color={colors.white} />
-              <Text style={styles.recordText}>
-                {isEditing ? '음성 다시 녹음' : '음성 녹음 (최대 30초)'}
-              </Text>
+            <TouchableOpacity style={styles.micButton} onPress={startRecording}>
+              <Ionicons name="mic" size={40} color={colors.primary} />
             </TouchableOpacity>
           )}
         </View>
@@ -199,6 +201,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
+    flex: 1,
   },
   label: {
     fontSize: 16,
@@ -209,78 +212,80 @@ const styles = StyleSheet.create({
   recordingContainer: {
     backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.small,
+    height: 56,
   },
-  recordButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 50,
-    padding: 20,
+  micButton: {
     alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  recordText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
+    justifyContent: 'center',
+    padding: 0,
+    flex: 1,
+    height: '100%',
   },
   recordingActive: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 8,
   },
   recordingIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: colors.error,
   },
   recordingText: {
-    fontSize: 16,
+    fontSize: 12,
     color: colors.textPrimary,
     fontWeight: '500',
   },
   stopButton: {
     backgroundColor: colors.error,
-    borderRadius: 25,
-    padding: 12,
+    borderRadius: 16,
+    padding: 8,
   },
   audioContainer: {
     backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     ...shadows.small,
+    height: 56,
   },
   playButton: {
     backgroundColor: colors.primary,
-    borderRadius: 25,
-    padding: 12,
-    marginRight: 16,
+    borderRadius: 18,
+    padding: 8,
+    marginRight: 12,
   },
   audioInfo: {
     flex: 1,
   },
   audioText: {
-    fontSize: 16,
+    fontSize: 12,
     color: colors.textPrimary,
     fontWeight: '500',
   },
   audioTime: {
-    fontSize: 14,
+    fontSize: 10,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
   },
   audioActions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 4,
   },
   actionButton: {
-    padding: 8,
-    borderRadius: 16,
+    padding: 4,
+    borderRadius: 8,
     backgroundColor: colors.gray,
+  },
+  warningText: {
+    color: colors.warning,
+    fontSize: 10,
+    fontWeight: '500',
   },
 }); 

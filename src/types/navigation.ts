@@ -1,21 +1,41 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { NavigatorScreenParams, CompositeScreenProps } from '@react-navigation/native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { Memory } from './';
 
-export type RootStackParamList = {
-  Auth: undefined;
-  Home: undefined;
-  Memory: { date?: string; memoryId?: string };
+export type TabParamList = {
+  Memory: { memory?: Partial<Memory> } | undefined;
   Gallery: undefined;
   Calendar: undefined;
-  MemoryDetail: { memoryId: string };
+  Settings: undefined;
 };
 
-export type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth'>;
-export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-export type MemoryScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Memory'>;
-export type GalleryScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Gallery'>;
-export type CalendarScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Calendar'>;
-export type MemoryDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MemoryDetail'>;
+export type RootStackParamList = {
+  Tabs: NavigatorScreenParams<TabParamList>;
+  Auth: undefined;
+  MemoryDetail: { memory: Memory };
+};
 
-export type MemoryScreenRouteProp = RouteProp<RootStackParamList, 'Memory'>;
-export type MemoryDetailScreenRouteProp = RouteProp<RootStackParamList, 'MemoryDetail'>; 
+export type AuthScreenProps = StackScreenProps<RootStackParamList, 'Auth'>;
+
+export type MemoryDetailScreenProps = StackScreenProps<RootStackParamList, 'MemoryDetail'>;
+
+export type MemoryScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, 'Memory'>,
+  StackScreenProps<RootStackParamList>
+>;
+
+export type GalleryScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, 'Gallery'>,
+  StackScreenProps<RootStackParamList>
+>;
+
+export type CalendarScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, 'Calendar'>,
+  StackScreenProps<RootStackParamList>
+>;
+
+export type SettingsScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, 'Settings'>,
+  StackScreenProps<RootStackParamList>
+>; 

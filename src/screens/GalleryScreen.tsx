@@ -15,16 +15,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
 import { useMemory } from '../hooks/useMemory';
 import { colors, shadows } from '../styles/colors';
-import { GalleryScreenNavigationProp } from '../types/navigation';
+import { GalleryScreenProps } from '../types/navigation';
 import { Memory } from '../types';
 import { MemoryCard } from '../components/Gallery/MemoryCard';
 import { Loading } from '../components/UI/Loading';
 import { ErrorMessage } from '../components/UI/ErrorMessage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-interface GalleryScreenProps {
-  navigation: GalleryScreenNavigationProp;
-}
+import { useFocusEffect } from '@react-navigation/native';
 
 export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
@@ -41,8 +38,17 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
   const numColumns = 3;
   const imageSize = Math.floor(screenWidth / numColumns);
 
-  // 사진이 있는 기록만 필터링
-  const photoMemories = memories.filter(m => m.photoUrl);
+  // 화면이 포커스될 때마다 메모리 다시 로드
+  useFocusEffect(
+    React.useCallback(() => {
+      loadMemories();
+    }, [loadMemories])
+  );
+
+  // 사진이 있는 기록만 필터링하고 날짜순으로 정렬 (최신순)
+  const photoMemories = memories
+    .filter(m => m.photoUrl)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -52,7 +58,7 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
 
   const handleMemoryPress = (memory: Memory) => {
     if (memory.id) {
-      navigation.navigate('MemoryDetail', { memoryId: memory.id });
+      navigation.navigate('MemoryDetail', { memory });
     }
   };
 
@@ -79,7 +85,7 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
   };
 
   const handleAddMemory = () => {
-    navigation.navigate('Memory', {});
+    navigation.navigate('Memory');
   };
 
   // 인스타그램 스타일 그리드 렌더러
@@ -89,11 +95,39 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
       activeOpacity={0.8}
       style={{ width: imageSize, height: imageSize }}
     >
-      <Image
-        source={{ uri: item.photoUrl! }}
-        style={{ width: imageSize, height: imageSize }}
-        resizeMode="cover"
-      />
+      <View style={styles.photoContainer}>
+        <Image
+          source={{ uri: item.photoUrl! }}
+          style={styles.photoImage}
+          resizeMode="cover"
+        />
+        
+        {/* 날짜 오버레이 */}
+        <View style={styles.dateOverlay}>
+          <Text style={styles.dateText}>
+            {new Date(item.date).toLocaleDateString('ko-KR', {
+              month: '2-digit',
+              day: '2-digit'
+            }).replace('.', '').replace('.', '').replace(' ', '/')}
+          </Text>
+        </View>
+        
+        {/* 감정 이모티콘 오버레이 */}
+        {item.emotion && (
+          <View style={styles.emotionOverlay}>
+            <Text style={styles.emotionText}>{item.emotion}</Text>
+          </View>
+        )}
+        
+        {/* 메모 오버레이 */}
+        {item.note && (
+          <View style={styles.noteOverlay}>
+            <Text style={styles.noteText} numberOfLines={1}>
+              {item.note}
+            </Text>
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 
@@ -128,12 +162,7 @@ export const GalleryScreen: React.FC<GalleryScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
+        <View style={styles.headerButton} />
         <Text style={styles.headerTitle}>갤러리</Text>
         <TouchableOpacity 
           style={styles.headerButton} 
@@ -217,5 +246,50 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  photoContainer: {
+    position: 'relative',
+  },
+  photoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  dateOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    padding: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 4,
+  },
+  dateText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  emotionOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 4,
+  },
+  emotionText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  noteOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 4,
+    borderRadius: 4,
+  },
+  noteText: {
+    fontSize: 12,
+    color: colors.white,
   },
 }); 

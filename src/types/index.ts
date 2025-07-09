@@ -4,6 +4,7 @@ export interface Memory {
   photoUrl?: string;
   audioUrl?: string;
   note?: string;
+  emotion?: string; // 감정 이모티콘 (😢, 😕, 😐, 🙂, 😊)
   createdAt: Date;
   userId: string;
 }

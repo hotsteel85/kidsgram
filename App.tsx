@@ -1,29 +1,62 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+
 import { AuthScreen } from './src/screens/AuthScreen';
-import { HomeScreen } from './src/screens/HomeScreen';
 import { MemoryScreen } from './src/screens/MemoryScreen';
 import { GalleryScreen } from './src/screens/GalleryScreen';
 import { CalendarScreen } from './src/screens/CalendarScreen';
 import { MemoryDetailScreen } from './src/screens/MemoryDetailScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
 import { useAuth } from './src/hooks/useAuth';
 import { Loading } from './src/components/UI/Loading';
 import { colors } from './src/styles/colors';
-import { RootStackParamList } from './src/types/navigation';
+import { RootStackParamList, TabParamList } from './src/types/navigation';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 
-// 로그인 함수는 별도 서비스 파일로 분리 예정
+const TabNavigator = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName: keyof typeof Ionicons.glyphMap;
+
+        if (route.name === 'Memory') {
+          iconName = focused ? 'add-circle' : 'add-circle-outline';
+        } else if (route.name === 'Gallery') {
+          iconName = focused ? 'images' : 'images-outline';
+        } else if (route.name === 'Calendar') {
+          iconName = focused ? 'calendar' : 'calendar-outline';
+        } else if (route.name === 'Settings') {
+          iconName = focused ? 'settings' : 'settings-outline';
+        } else {
+          iconName = 'alert-circle';
+        }
+        return <Ionicons name={iconName} size={size} color={color} />;
+      },
+      tabBarActiveTintColor: colors.primary,
+      tabBarInactiveTintColor: colors.textSecondary,
+    })}
+  >
+    <Tab.Screen name="Memory" component={MemoryScreen} options={{ title: '기록' }} />
+    <Tab.Screen name="Gallery" component={GalleryScreen} options={{ title: '갤러리' }} />
+    <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: '달력' }} />
+    <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: '설정' }} />
+  </Tab.Navigator>
+);
 
 export default function App() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '939218251186-s8nj3k3h9kh3qijs9ji56k7u265ikigj.apps.googleusercontent.com', // Google Cloud Console에서 발급받은 웹 클라이언트 ID
+      webClientId: '939218251186-s8nj3k3h9kh3qijs9ji56k7u265ikigj.apps.googleusercontent.com',
       offlineAccess: true,
     });
   }, []);
@@ -41,16 +74,11 @@ export default function App() {
         }}
       >
         {user ? (
-          // 로그인된 사용자
           <>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Memory" component={MemoryScreen} />
-            <Stack.Screen name="Gallery" component={GalleryScreen} />
-            <Stack.Screen name="Calendar" component={CalendarScreen} />
+            <Stack.Screen name="Tabs" component={TabNavigator} />
             <Stack.Screen name="MemoryDetail" component={MemoryDetailScreen} />
           </>
         ) : (
-          // 로그인되지 않은 사용자
           <Stack.Screen name="Auth" component={AuthScreen} />
         )}
       </Stack.Navigator>

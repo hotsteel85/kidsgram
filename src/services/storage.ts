@@ -8,14 +8,23 @@ export const uploadFile = async (
   contentType?: string
 ): Promise<string> => {
   try {
+    console.log('uploadFile 시작:', { path, contentType, fileType: typeof file, fileSize: file?.byteLength || file?.size });
+    
     const refInstance = storage().ref(path);
     let taskSnapshot;
+    
     if (contentType) {
+      console.log('contentType으로 업로드:', contentType);
       taskSnapshot = await refInstance.put(file, { contentType });
     } else {
+      console.log('기본 업로드');
       taskSnapshot = await refInstance.put(file);
     }
+    
+    console.log('업로드 완료, bytesTransferred:', taskSnapshot.bytesTransferred);
     const downloadURL = await refInstance.getDownloadURL();
+    console.log('다운로드 URL 생성:', downloadURL);
+    
     return downloadURL;
   } catch (error) {
     console.error('파일 업로드 오류:', error);
@@ -50,10 +59,12 @@ export const uploadAudio = async (
   date: string
 ): Promise<string> => {
   try {
+    console.log('uploadAudio - uri:', uri);
     const response = await fetch(uri);
-    const blob = await response.blob();
+    const arrayBuffer = await response.arrayBuffer();
+    console.log('uploadAudio - arrayBuffer byteLength:', arrayBuffer.byteLength);
     const fileName = `audio/${userId}/${date}_${Date.now()}.m4a`;
-    const downloadURL = await uploadFile(blob, fileName, 'audio/m4a');
+    const downloadURL = await uploadFile(arrayBuffer, fileName, 'audio/m4a');
     return downloadURL;
   } catch (error) {
     console.error('오디오 업로드 오류:', error);

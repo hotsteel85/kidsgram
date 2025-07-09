@@ -15,17 +15,12 @@ import { Audio } from 'expo-av';
 import { useAuth } from '../hooks/useAuth';
 import { useMemory } from '../hooks/useMemory';
 import { colors, shadows } from '../styles/colors';
-import { MemoryDetailScreenNavigationProp, MemoryDetailScreenRouteProp } from '../types/navigation';
+import { MemoryDetailScreenProps } from '../types/navigation';
 import { Loading } from '../components/UI/Loading';
 import { ErrorMessage } from '../components/UI/ErrorMessage';
 import { getDateDisplay } from '../utils/dateUtils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Memory } from '../types';
-
-interface MemoryDetailScreenProps {
-  navigation: MemoryDetailScreenNavigationProp;
-  route: MemoryDetailScreenRouteProp;
-}
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -42,11 +37,17 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const insets = useSafeAreaInsets();
 
-  const memoryId = route.params.memoryId;
+  const memoryParam = route.params.memory;
 
   useEffect(() => {
-    loadMemory();
-  }, [memoryId]);
+    if (memoryParam) {
+      setMemory(memoryParam);
+      setLoading(false);
+    } else {
+      setError('메모리 정보가 없습니다.');
+      setLoading(false);
+    }
+  }, [memoryParam]);
 
   useEffect(() => {
     return () => {
@@ -57,15 +58,15 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
   }, [sound]);
 
   const loadMemory = async () => {
-    if (!memoryId) {
-      setError('메모리 ID가 없습니다.');
+    if (!memoryParam) {
+      setError('메모리 정보가 없습니다.');
       setLoading(false);
       return;
     }
 
     try {
       setError(null);
-      const memoryData = await getMemoryById(memoryId);
+      const memoryData = await getMemoryById(memoryParam.id!);
       
       if (!memoryData) {
         setError('메모리를 찾을 수 없습니다.');
@@ -116,10 +117,13 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
   const handleEdit = () => {
     if (!memory) return;
     
-    navigation.navigate('Memory', { 
-      date: memory.date,
-      memoryId: memory.id 
-    });
+    Alert.alert(
+      '편집',
+      '편집하려면 하단의 "기록" 탭으로 이동하여 새 기록을 작성해주세요.',
+      [
+        { text: '확인' }
+      ]
+    );
   };
 
   const handleDelete = () => {
@@ -208,6 +212,11 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
               minute: '2-digit'
             })}
           </Text>
+          {memory.emotion && (
+            <View style={styles.emotionSection}>
+              <Text style={styles.emotionText}>{memory.emotion}</Text>
+            </View>
+          )}
         </View>
 
         {memory.photoUrl && (
@@ -262,6 +271,13 @@ export const MemoryDetailScreen: React.FC<MemoryDetailScreenProps> = ({
             <Ionicons name="document-text" size={20} color={colors.primary} />
             <Text style={styles.statText}>
               {memory.note ? `${memory.note.length}자` : '메모 없음'}
+            </Text>
+          </View>
+          
+          <View style={styles.statItem}>
+            <Ionicons name="happy" size={20} color={colors.primary} />
+            <Text style={styles.statText}>
+              {memory.emotion ? `감정: ${memory.emotion}` : '감정 없음'}
             </Text>
           </View>
         </View>
@@ -398,5 +414,17 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: colors.textSecondary,
+  },
+  emotionSection: {
+    backgroundColor: colors.white,
+    padding: 12,
+    borderRadius: 16,
+    marginTop: 12,
+    ...shadows.small,
+  },
+  emotionText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
   },
 }); 
