@@ -58,18 +58,6 @@ src/
 
 ---
 
-## 설치 및 실행
-
-```bash
-git clone <레포주소>
-cd kidsgram
-npm install
-npm start
-```
-Expo Go 앱으로 QR코드를 스캔해 실행할 수 있습니다.
-
----
-
 ## 커스텀 감정 드롭다운
 
 - 감정 선택 시, 드롭다운에는 감성 문구(예: "행복이 가득해")가 보이고
@@ -77,13 +65,10 @@ Expo Go 앱으로 QR코드를 스캔해 실행할 수 있습니다.
 
 ---
 
-## 스크린샷
-
-(여기에 주요 화면 캡처를 첨부하면 좋아요!)
 
 ---
 
 ## 기여 및 문의
 
 - Pull Request, Issue 환영합니다!
-- 문의: [your-email@example.com] 
+- 문의: [hotsteel85@gmail.com] 
