@@ -58,7 +58,7 @@ export const EmotionSelector: React.FC<EmotionSelectorProps> = ({
               </Text>
             </>
           ) : (
-            <Text style={styles.placeholderText}>감정을 선택하세요</Text>
+            <Text style={styles.placeholderText}>감정 선택</Text>
           )}
         </View>
         <Ionicons 

@@ -21,6 +21,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const [recordingTime, setRecordingTime] = useState(0);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -78,19 +79,23 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
       setIsRecording(false);
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
-      console.log('녹음 완료, URI:', uri);
       setRecording(null);
       setRecordingTime(0);
       
       if (uri) {
-        console.log('오디오 URI 설정:', uri);
+        // 오디오 duration 구하기
+        const { sound: tempSound, status } = await Audio.Sound.createAsync({ uri });
+        let durationSec = 0;
+        if (status && 'durationMillis' in status && typeof status.durationMillis === 'number') {
+          durationSec = Math.round(status.durationMillis / 1000);
+        }
+        setAudioDuration(durationSec);
+        tempSound.unloadAsync();
         onAudioChange(uri);
       } else {
-        console.error('녹음 URI가 null입니다');
         Alert.alert('오류', '녹음 파일을 생성할 수 없습니다.');
       }
     } catch (error) {
-      console.error('녹음 중지 오류:', error);
       Alert.alert('오류', '녹음을 중지할 수 없습니다.');
     }
   };
@@ -149,6 +154,19 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleMicPress = async () => {
+    if (audioUri) {
+      // 기존 녹음 정리
+      if (sound) {
+        await sound.unloadAsync();
+        setSound(null);
+      }
+      onAudioChange(null);
+      setIsPlaying(false);
+    }
+    startRecording();
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>음성</Text>
@@ -163,13 +181,10 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             />
           </TouchableOpacity>
           <View style={styles.audioInfo}>
-            <Text style={styles.audioText}>음성 녹음</Text>
-            <Text style={styles.audioTime}>00:15</Text>
+            <Text style={styles.audioTime}>{`${audioUri ? audioDuration : Math.round(recordingTime || 0)}초/15초`}</Text>
           </View>
           <View style={styles.audioActions}>
-            <TouchableOpacity style={styles.actionButton} onPress={startRecording}>
-              <Ionicons name="mic" size={16} color={colors.primary} />
-            </TouchableOpacity>
+            {/* 마이크 버튼 제거 */}
             <TouchableOpacity style={styles.actionButton} onPress={removeAudio}>
               <Ionicons name="trash" size={16} color={colors.error} />
             </TouchableOpacity>
@@ -188,7 +203,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={styles.micButton} onPress={startRecording}>
+            <TouchableOpacity style={styles.micButton} onPress={handleMicPress}>
               <Ionicons name="mic" size={40} color={colors.primary} />
             </TouchableOpacity>
           )}
@@ -221,9 +236,8 @@ const styles = StyleSheet.create({
   micButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 0,
-    flex: 1,
-    height: '100%',
+    width: 48,
+    height: 48,
   },
   recordingActive: {
     flexDirection: 'row',

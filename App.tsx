@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import * as Font from 'expo-font';
 
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MemoryScreen } from './src/screens/MemoryScreen';
@@ -16,6 +17,7 @@ import { Loading } from './src/components/UI/Loading';
 import { colors } from './src/styles/colors';
 import { RootStackParamList, TabParamList } from './src/types/navigation';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { View, Text } from 'react-native';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -53,6 +55,9 @@ const TabNavigator = () => (
 
 export default function App() {
   const { user, loading } = useAuth();
+  const [fontsLoaded] = Font.useFonts({
+    SUIT: require('./assets/fonts/SUIT-Variable.ttf'),
+  });
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -61,27 +66,38 @@ export default function App() {
     });
   }, []);
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  if (fontsLoaded) {
+    (Text as any).defaultProps = (Text as any).defaultProps || {};
+    (Text as any).defaultProps.style = { fontFamily: 'SUIT' };
+  }
+
   if (loading) {
     return <Loading message="앱을 시작하는 중..." />;
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" backgroundColor={colors.background} />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        {user ? (
-          <>
-            <Stack.Screen name="Tabs" component={TabNavigator} />
-            <Stack.Screen name="MemoryDetail" component={MemoryDetailScreen} />
-          </>
-        ) : (
-          <Stack.Screen name="Auth" component={AuthScreen} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <NavigationContainer>
+        <StatusBar style="dark" backgroundColor={colors.background} />
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          {user ? (
+            <>
+              <Stack.Screen name="Tabs" component={TabNavigator} />
+              <Stack.Screen name="MemoryDetail" component={MemoryDetailScreen} />
+            </>
+          ) : (
+            <Stack.Screen name="Auth" component={AuthScreen} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
   );
 }
